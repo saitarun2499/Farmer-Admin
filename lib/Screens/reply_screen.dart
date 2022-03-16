@@ -70,7 +70,7 @@ class _ReplyScreenState extends State<ReplyScreen> {
           controller: textFormField,
           decoration: InputDecoration(
             suffixIcon: IconButton(
-                onPressed: () => sendReply(), icon: Icon(Icons.send)),
+                onPressed: () => sendReply(), icon: const Icon(Icons.send)),
             hintText: 'Reply',
           ),
         ),
