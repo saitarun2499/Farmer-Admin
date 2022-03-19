@@ -44,6 +44,11 @@ dependencies:
   shared_preferences: 
   cached_network_image: 
   permission_handler: 
+  platform: ^3.1.0
+  intl:
+  share_plus:
+  http:
+  path_provider:
 
 dev_dependencies:
   flutter_test:

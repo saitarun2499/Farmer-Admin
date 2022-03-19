@@ -1,7 +1,8 @@
-import 'package:agriadmin/Components/navigation_bar.dart';
+import 'package:agriadmin/Components/navigation_bar.dart' as a;
 import 'package:agriadmin/Models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 // String userId = "";
 
@@ -15,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool isFirstLoad = true;
+  List<bool> switchs = [];
 
   // getUserId() async {
   //   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -56,61 +58,146 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Agri Admin'),
       ),
-      body: Stack(
-        children: [
-          StreamBuilder(
-              stream:
-                  FirebaseFirestore.instance.collection('users').snapshots(),
-              builder: (context,
-                  AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final QuerySnapshot<Map<String, dynamic>>? data = snapshot.data;
-                final dataDocs = data!.docs;
-                final List<UserModel> files = [];
-                for (var item in dataDocs) {
-                  files.add(UserModel.fromJson(item));
-                  // print(files[0].userId);
-                }
-                return Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: GridView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: files.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 3 / 2,
-                            crossAxisSpacing: 10,
-                            mainAxisSpacing: 10),
-                    itemBuilder: (context, index) {
-                      return InkWell(
+      body: StreamBuilder(
+          stream: FirebaseFirestore.instance
+              .collection('users')
+              .orderBy("dateTime", descending: true)
+              .snapshots(),
+          builder: (context,
+              AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final QuerySnapshot<Map<String, dynamic>>? data = snapshot.data;
+            final dataDocs = data!.docs;
+            final List<UserModel> files = [];
+            for (var item in dataDocs) {
+              files.add(UserModel.fromJson(item));
+              switchs.add(false);
+              // print(files[0].userId);
+            }
+            return Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                itemCount: files.length,
+                // gridDelegate:
+                //     const SliverGridDelegateWithFixedCrossAxisCount(
+                //         crossAxisCount: 2,
+                //         childAspectRatio: 3 / 2,
+                //         crossAxisSpacing: 10,
+                //         mainAxisSpacing: 10),
+                itemBuilder: (context, index) {
+                  return Dismissible(
+                    direction: DismissDirection.endToStart,
+                    onDismissed: (direction) async {
+                      if (files[index].isRemoved) {
+                        await FirebaseFirestore.instance
+                            .collection("users")
+                            .doc(files[index].userId)
+                            .update({"isRemoved": false});
+                      } else {
+                        await FirebaseFirestore.instance
+                            .collection("users")
+                            .doc(files[index].userId)
+                            .update({"isRemoved": true});
+                      }
+                      // switchs[index] = isOn;
+
+                      setState(() {});
+                    },
+                    key: ObjectKey(files[index]),
+                    child: Card(
+                      child: ListTile(
+                        key: ObjectKey(files[index]),
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => NavigationBar(
+                              builder: (context) => a.NavigationBar(
                                 userId: files[index].userId,
                               ),
                             ),
                           );
                         },
-                        child: Container(
-                          color: Colors.purple[300],
-                          child: Center(
-                            child: Text(
-                              "User " + (index + 1).toString().toUpperCase(),
-                              style: Theme.of(context).textTheme.headline5,
-                            ),
-                          ),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5)),
+                        tileColor: files[index].isRemoved
+                            ? Colors.white
+                            : Colors.purple[300],
+                        title: Text(
+                          "User " + (index + 1).toString().toUpperCase(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline6!
+                              .copyWith(
+                                  color: files[index].isRemoved
+                                      ? Colors.purple[300]
+                                      : Colors.white),
                         ),
-                      );
-                    },
-                  ),
-                );
-              }),
-        ],
-      ),
+                        subtitle: Text(
+                            DateFormat()
+                                .add_yMMMEd()
+                                .format(files[index].userName.toDate()),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall!
+                                .copyWith(
+                                    color: files[index].isRemoved
+                                        ? Colors.purple[300]
+                                        : Colors.white)),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (files[index].isExpert)
+                              Text(
+                                "Expert",
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                            Switch.adaptive(
+                                value: files[index].isExpert,
+                                onChanged: (isOn) async {
+                                  await FirebaseFirestore.instance
+                                      .collection("users")
+                                      .doc(files[index].userId)
+                                      .update({"isExpert": isOn});
+                                  // switchs[index] = isOn;
+
+                                  setState(() {});
+                                }),
+                            IconButton(
+                                onPressed: () async {
+                                  if (files[index].isRemoved) {
+                                    await FirebaseFirestore.instance
+                                        .collection("users")
+                                        .doc(files[index].userId)
+                                        .update({"isRemoved": false});
+                                  } else {
+                                    await FirebaseFirestore.instance
+                                        .collection("users")
+                                        .doc(files[index].userId)
+                                        .update({"isRemoved": true});
+                                  }
+                                  // switchs[index] = isOn;
+
+                                  setState(() {});
+                                },
+                                icon: Icon(
+                                  files[index].isRemoved
+                                      ? Icons.add
+                                      : Icons.remove,
+                                  color: files[index].isRemoved
+                                      ? Colors.purple[300]
+                                      : Colors.white,
+                                ))
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
+          }),
     );
   }
 }
