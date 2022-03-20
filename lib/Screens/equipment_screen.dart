@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -86,12 +87,32 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                                             AlertDialog(
                                               title:
                                                   const Text("Image Preview"),
-                                              content: CachedNetworkImage(
-                                                  imageUrl: files[index].url,
-                                                  fit: BoxFit.cover,
-                                                  errorWidget: (context, url,
-                                                          error) =>
-                                                      const Icon(Icons.error)),
+                                              content: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  CachedNetworkImage(
+                                                      imageUrl:
+                                                          files[index].url,
+                                                      fit: BoxFit.cover,
+                                                      errorWidget: (context,
+                                                              url, error) =>
+                                                          const Icon(
+                                                              Icons.error)),
+                                                  const SizedBox(
+                                                    height: 5,
+                                                  ),
+                                                  Text(
+                                                      DateFormat()
+                                                          .add_yMMMEd()
+                                                          .format(files[index]
+                                                              .dateTime
+                                                              .toDate()),
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyLarge!)
+                                                ],
+                                              ),
                                               actions: [
                                                 ElevatedButton.icon(
                                                     onPressed: () async {
@@ -160,8 +181,26 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                                             AlertDialog(
                                               title:
                                                   const Text("Audio Preview"),
-                                              content: AudioPreview(
-                                                url: files[index].url,
+                                              content: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  AudioPreview(
+                                                    url: files[index].url,
+                                                  ),
+                                                  const SizedBox(
+                                                    height: 5,
+                                                  ),
+                                                  Text(
+                                                      DateFormat()
+                                                          .add_yMMMEd()
+                                                          .format(files[index]
+                                                              .dateTime
+                                                              .toDate()),
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyLarge!)
+                                                ],
                                               ),
                                               actions: [
                                                 ElevatedButton.icon(
