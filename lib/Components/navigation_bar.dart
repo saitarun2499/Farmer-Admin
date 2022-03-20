@@ -39,9 +39,7 @@ class _NavigationBarState extends State<NavigationBar> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.yard), label: "Crops"),
           BottomNavigationBarItem(
-            icon: Icon(Icons.construction),
-            label: "Equipment",
-          ),
+              icon: Icon(Icons.construction), label: "Equipment"),
         ],
       ),
     );
