@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class UserModel {
   final String userId;
   final Timestamp userName;
+  final int userIndex;
   final bool isExpert;
   final bool isRemoved;
 
@@ -10,6 +11,7 @@ class UserModel {
       {required this.userId,
       required this.userName,
       required this.isExpert,
+      required this.userIndex,
       required this.isRemoved});
 
   factory UserModel.fromJson(QueryDocumentSnapshot snapshot) {
@@ -18,6 +20,7 @@ class UserModel {
         userId: data['userId'] as String,
         userName: data['dateTime'] as Timestamp,
         isExpert: data['isExpert'] ?? false,
+        userIndex: data['userIndex'] ?? 0,
         isRemoved: data['isRemoved'] ?? false);
   }
 }
