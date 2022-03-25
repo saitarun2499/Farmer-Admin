@@ -16,7 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool isFirstLoad = true;
-  List<bool> switchs = [];
+  // List<bool> switchs = [];
 
   // getUserId() async {
   //   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -73,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
             final List<UserModel> files = [];
             for (var item in dataDocs) {
               files.add(UserModel.fromJson(item));
-              switchs.add(false);
+              // switchs.add(false);
               // print(files[0].userId);
             }
             return Padding(
@@ -125,7 +125,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             ? Colors.white
                             : Colors.purple[300],
                         title: Text(
-                          "User " + (index + 1).toString().toUpperCase(),
+                          "User " +
+                              files[index].userIndex.toString().toUpperCase(),
                           style: Theme.of(context)
                               .textTheme
                               .headline6!
